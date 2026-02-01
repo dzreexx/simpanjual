@@ -20,7 +20,7 @@ class BrandsController extends Controller
         ]);
 
         $brand = new Brands();
-        $brand->brand_name = $request->brand_name;
+        $brand->brand_name = strtoupper($request->brand_name);
         $brand->save();
 
         return redirect()->route('addbrand')->with('success', 'Brand added successfully');

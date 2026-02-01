@@ -12,6 +12,8 @@ use App\Http\Controllers\ItemManagementController;
 use App\Http\Controllers\BrandsController;
 use App\Http\Controllers\BrandSessionController;
 use App\Http\Controllers\Productcontroller;
+use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\InventoryController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,6 +26,12 @@ Route::post('addproduct', [ProductController::class, 'storeproduct'])->name('add
 
 Route::get('addbrand', [BrandsController::class, 'addbrand']);
 Route::post('addbrand', [BrandsController::class, 'storebrand'])->name('addbrand');
+
+Route::get('addwarehouse', [WarehouseController::class, 'addwarehouse']);
+Route::post('addwarehouse', [WarehouseController::class, 'storewarehouse'])->name('addwarehouse');
+
+Route::get('adjuststock', [Productcontroller::class, 'adjuststock']);
+Route::post('adjuststock', [Productcontroller::class, 'storestock'])->name('adjuststock');
 
 // Route for User
 
@@ -39,7 +47,10 @@ Route::post('daftar', [UserController::class, 'storeregister']);
 
 // Dashboard route
 Route::prefix('dashboard')->middleware('auth')->group(function () {
-    Route::get('/inbound', [DashboardController::class, 'inbound'])->name('dashboard.inbound');
+    Route::get('/inbound', [DashboardController::class, 'inbound'])
+        ->name('dashboard.inbound');
+    Route::post('/inbound', [DashboardController::class, 'inboundsetproduct'])
+        ->name('dashboard.inboundsetproduct');
     Route::get('/outbound', [DashboardController::class, 'outbound'])->name('dashboard.outbound');
     Route::get('/stockledger', [DashboardController::class, 'stockledger'])->name('dashboard.stockledger');
 });

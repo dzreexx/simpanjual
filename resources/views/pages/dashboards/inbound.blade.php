@@ -3,34 +3,45 @@
 @section('title', 'Inbound')
 @section('content')
     <div class="p-4 space-y-1 bg-white">
-        <div class="flex space-x-5">
-            <select
-                class="select appearance-none border-2 border-gray-200 rounded-lg"
-            >
-                <option disabled selected>Warehouse</option>
-                <option>Crimson</option>
-                <option>Amber</option>
-                <option>Velvet</option>
-            </select>
-            <select
-                class="select appearance-none border-2 border-gray-200 rounded-lg"
-            >
-                <option disabled selected>Item Code</option>
-                <option>Crimson</option>
-                <option>Amber</option>
-                <option>Velvet</option>
-            </select>
-        </div>
+            <form action="{{ route('dashboard.inboundsetproduct') }}" method="POST" class="flex space-x-5">
+                @csrf
+                <select class="select appearance-none border-2 border-gray-200 rounded-lg" name="warehouse_id" onchange="this.form.submit()">
+                    <option value="" disabled {{ $warehouse_value == '' ? 'selected' : '' }}>Warehouse</option>
+                    @foreach ($warehouses as $warehouse)
+                        <option value="{{ $warehouse->id_warehouse }}" {{ $warehouse_value == $warehouse->id_warehouse ? 'selected' : '' }}>
+                            {{ $warehouse->warehouse_name }}
+                        </option>
+                    @endforeach
+                </select>
+                <select class="select appearance-none border-2 border-gray-200 rounded-lg" name="product_id"
+                    onchange="this.form.submit()">
+                    <option value="" disabled {{ $product_value == '' ? 'selected' : '' }}>Item Code</option>
+                    @foreach ($products as $product)
+                        <option value="{{ $product->id_product }}" {{ $product_value == $product->id_product ? 'selected' : '' }}>
+                            {{ $product->product_name }}
+                        </option>
+                    @endforeach
+                </select>
+            </form>
 
         {{-- Oreder Level --}}
+
+        @if ($selectedProduct)
+            <h1>{{ $selectedProduct->product_name }}</h1>
+        @endif
+        @if ($selectedWarehouse)
+            <h1>{{ $selectedWarehouse->warehouse_name }}</h1>
+        @endif
+        @if ($inventory)
+            <h1>{{ $inventory->stock }}</h1>
+        @endif
+
 
         <div class="w-full my-5 p-5 rounded-lg border-gray-200 border">
             <h1>ORDER LEVEL</h1>
         </div>
         <div class="flex space-x-1 h-[20vh]">
-            <div
-                class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border"
-            >
+            <div class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border">
                 <div class="card-body">
                     <span class="badge badge-lg badge-warning">
                         Incoming PO
@@ -41,9 +52,7 @@
                     </div>
                 </div>
             </div>
-            <div
-                class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border"
-            >
+            <div class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border">
                 <div class="card-body">
                     <span class="badge badge-lg badge-warning">
                         PO On Process
@@ -54,9 +63,7 @@
                     </div>
                 </div>
             </div>
-            <div
-                class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border"
-            >
+            <div class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border">
                 <div class="card-body">
                     <span class="badge badge-lg badge-warning">
                         PO Accepted at Warehouse
@@ -69,9 +76,7 @@
             </div>
         </div>
         <div class="flex space-x-1 h-[50vh]">
-            <div
-                class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border"
-            >
+            <div class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border">
                 <div class="card-body">
                     <span class="badge badge-lg badge-warning">
                         Incoming PO
@@ -82,9 +87,7 @@
                     </div>
                 </div>
             </div>
-            <div
-                class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border"
-            >
+            <div class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border">
                 <div class="card-body">
                     <span class="badge badge-lg badge-warning">
                         PO On Process
@@ -95,9 +98,7 @@
                     </div>
                 </div>
             </div>
-            <div
-                class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border"
-            >
+            <div class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border">
                 <div class="card-body">
                     <span class="badge badge-lg badge-warning">
                         PO Accepted at Warehouse
@@ -116,9 +117,7 @@
             <h1>ITEM LEVEL</h1>
         </div>
         <div class="flex space-x-1 h-[20vh]">
-            <div
-                class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border"
-            >
+            <div class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border">
                 <div class="card-body">
                     <span class="badge badge-lg badge-warning">
                         Incoming Quantity
@@ -129,9 +128,7 @@
                     </div>
                 </div>
             </div>
-            <div
-                class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border"
-            >
+            <div class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border">
                 <div class="card-body">
                     <span class="badge badge-lg badge-warning">
                         QTY On Process
@@ -142,9 +139,7 @@
                     </div>
                 </div>
             </div>
-            <div
-                class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border"
-            >
+            <div class="card w-1/3 h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border">
                 <div class="card-body">
                     <span class="badge badge-lg badge-warning">
                         QTY Accepted at Warehouse
@@ -157,9 +152,7 @@
             </div>
         </div>
         <div class="flex space-x-1 h-[50vh]">
-            <div
-                class="card w-full h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border"
-            >
+            <div class="card w-full h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border">
                 <div class="card-body">
                     <span class="badge badge-lg badge-warning">
                         Overall Item Qty - Details
@@ -172,9 +165,7 @@
             </div>
         </div>
         <div class="flex space-x-1 h-[50vh]">
-            <div
-                class="card w-full h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border"
-            >
+            <div class="card w-full h-full bg-base-100 shadow-sm rounded-lg border-gray-200 border">
                 <div class="card-body">
                     <span class="badge badge-lg badge-warning">
                         Stock After Inbound
@@ -186,9 +177,5 @@
                 </div>
             </div>
         </div>
-        <p>{{ $brand_id }}</p>
-        @foreach ($product_name as $product)
-            <p>{{ $product }}</p>
-        @endforeach
     </div>
 @endsection

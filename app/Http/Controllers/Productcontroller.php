@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Inventory;
 use Illuminate\Http\Request;
 use App\Models\Brands;
 use App\Models\Products;
+use App\Models\Warehouses;
 
 class Productcontroller extends Controller
 {
@@ -33,10 +35,34 @@ class Productcontroller extends Controller
         $product->product_name = $request->product_name;
         $product->id_brand = $request->id_brand;
         $product->price = $request->price;
-        $product->stock = $request->stock;
         // dd($product);
         $product->save();
 
         return redirect()->route('addproduct')->with('success', 'Product added successfully');
+    }
+
+    public function adjuststock()
+    {
+        $products = Products::all();
+        $warehouses = Warehouses::all();
+        return view('adjuststock', compact('products', 'warehouses'));
+    }
+    public function storestock(Request $request)
+    {
+        $request->validate([
+            'id_product' => 'required',
+            'id_warehouse' => 'required',
+        ], [
+            'id_product.required' => 'Produk tidak boleh kosong',
+            'id_warehouse.required' => 'Warehouse tidak boleh kosong',
+        ]);
+
+        $inventory = new Inventory();
+        $inventory->id_product = $request->id_product;
+        $inventory->id_warehouse = $request->id_warehouse;
+        $inventory->stock = $request->stock;
+        $inventory->save();
+
+        return redirect()->route('adjuststock')->with('success', 'Product added successfully');
     }
 }

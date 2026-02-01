@@ -4,15 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Products extends Model
+class Inventory extends Model
 {
-    protected $primaryKey = 'id_products';
+    protected $primaryKey = 'id_inventory';
     public $incrementing = true;
     protected $keyType = 'int';
 
     protected $fillable = [
-        'product_name',
-        'id_brand',
-        'price',
+        'id_product',
+        'id_warehouse',
+        'stock',
     ];
 }
