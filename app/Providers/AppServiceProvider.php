@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Schema;
+use App\Models\Brands;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,9 +34,9 @@ class AppServiceProvider extends ServiceProvider
         //     $view->with('brands', \App\Models\Brands::all());
         // });
         // View::share('brands', \App\Models\Brands::orderBy('brand_name', 'asc')->get());
-        if (Schema::connection('mysql')->hasTable('brands')) {
-            $brands = \App\Models\Brands::on('mysql')->orderBy('brand_name')->get();
-            view()->share('brands', $brands);
+        if (Schema::hasTable('brands')) {
+            $brands = Brands::orderBy('brand_name')->get();
+            View::share('brands', $brands);
         }
     }
 }
