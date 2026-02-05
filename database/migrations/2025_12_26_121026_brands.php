@@ -43,6 +43,22 @@ return new class extends Migration {
             $table->integer('stock')->default(0);
             $table->timestamps();
         });
+
+        Schema::create('purchase_orders', function (Blueprint $table) {
+            $table->bigIncrements('id_purchase_order');
+            $table->foreignId('id_brand')
+                ->constrained('brands', 'id_brand')
+                ->onDelete('cascade');
+            $table->foreignId('id_product')
+                ->constrained('products', 'id_product')
+                ->onDelete('cascade');
+            $table->string('status')->default('pending');
+            $table->integer('stock')->default(0);
+            $table->foreignId('id_warehouse')
+                ->constrained('warehouses', 'id_warehouse')
+                ->onDelete('cascade');
+            $table->timestamps();
+        });
     }
 
     /**
