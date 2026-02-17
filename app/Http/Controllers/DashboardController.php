@@ -7,6 +7,7 @@ use App\Models\Warehouses;
 use Illuminate\Http\Request;
 use App\Models\Products;
 use App\Models\Inventory;
+use App\Models\PurchaseOrder;
 
 class DashboardController extends Controller
 {
@@ -41,6 +42,11 @@ class DashboardController extends Controller
         $warehouses = Warehouses::get();
 
         $inventory = Inventory::where('id_product', $product_value)->where('id_warehouse', $warehouse_value)->get()->first();
+        $previousStock = Inventory::where('id_product', $product_value)->get();
+        $purchaseOrder = PurchaseOrder::where('id_product', $product_value)->where('id_warehouse', $warehouse_value)->get();
+        $totalPendingStock = PurchaseOrder::where('status', 'pending')->where('id_product', $product_value)->where('id_warehouse', $warehouse_value)->sum('stock');
+        $totalProcessStock = PurchaseOrder::where('status', 'process')->where('id_product', $product_value)->where('id_warehouse', $warehouse_value)->sum('stock');
+        $totalDoneStock = PurchaseOrder::where('status', 'done')->where('id_product', $product_value)->where('id_warehouse', $warehouse_value)->sum('stock');
 
         $selectedProduct = null;
         if ($product_value) {
@@ -53,7 +59,7 @@ class DashboardController extends Controller
 
         return view(
             'pages.dashboards.inbound',
-            compact('products', 'product_value', 'selectedProduct', 'warehouses', 'warehouse_value', 'selectedWarehouse', 'inventory')
+            compact('products', 'product_value', 'selectedProduct', 'warehouses', 'warehouse_value', 'selectedWarehouse', 'inventory', 'purchaseOrder', 'totalPendingStock', 'totalProcessStock', 'totalDoneStock', 'previousStock')
         );
     }
 

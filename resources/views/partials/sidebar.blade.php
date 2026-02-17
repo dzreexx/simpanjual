@@ -51,6 +51,9 @@
             <li>
                 <a href="{{route('adjuststock')}}">Adjust Stock</a>
             </li>
+            <li>
+                <a href="{{route('addpurchaseorder')}}">Add Purchase Order</a>
+            </li>
             <!-- Jual.Praktis Group -->
             <li class="menu-title mt-2">
                 <span class="flex items-center gap-2 text-yellow-600 font-bold">

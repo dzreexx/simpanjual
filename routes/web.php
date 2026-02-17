@@ -33,6 +33,9 @@ Route::post('addwarehouse', [WarehouseController::class, 'storewarehouse'])->nam
 Route::get('adjuststock', [Productcontroller::class, 'adjuststock']);
 Route::post('adjuststock', [Productcontroller::class, 'storestock'])->name('adjuststock');
 
+Route::get('addpurchaseorder', [PurchaseOrderController::class, 'createPurchaseOrder'])->name('addpurchaseorder');
+Route::post('addpurchaseorder', [PurchaseOrderController::class, 'storePurchaseOrder'])->name('storepurchaseorder');
+
 // Route for User
 
 Route::get('logcheck', [UserController::class, 'logcheck']);
