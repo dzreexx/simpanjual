@@ -41,12 +41,12 @@ class DashboardController extends Controller
         $products = Products::where('id_brand', $brand_id)->get();
         $warehouses = Warehouses::get();
 
-        $inventory = Inventory::where('id_product', $product_value)->where('id_warehouse', $warehouse_value)->get()->first();
-        $previousStock = Inventory::where('id_product', $product_value)->get();
+        $inventory = Inventory::where('id_product', $product_value)->where('id_warehouse', $warehouse_value)->get();
         $purchaseOrder = PurchaseOrder::where('id_product', $product_value)->where('id_warehouse', $warehouse_value)->get();
         $totalPendingStock = PurchaseOrder::where('status', 'pending')->where('id_product', $product_value)->where('id_warehouse', $warehouse_value)->sum('stock');
         $totalProcessStock = PurchaseOrder::where('status', 'process')->where('id_product', $product_value)->where('id_warehouse', $warehouse_value)->sum('stock');
         $totalDoneStock = PurchaseOrder::where('status', 'done')->where('id_product', $product_value)->where('id_warehouse', $warehouse_value)->sum('stock');
+
 
         $selectedProduct = null;
         if ($product_value) {
@@ -59,7 +59,7 @@ class DashboardController extends Controller
 
         return view(
             'pages.dashboards.inbound',
-            compact('products', 'product_value', 'selectedProduct', 'warehouses', 'warehouse_value', 'selectedWarehouse', 'inventory', 'purchaseOrder', 'totalPendingStock', 'totalProcessStock', 'totalDoneStock', 'previousStock')
+            compact('products', 'product_value', 'selectedProduct', 'warehouses', 'warehouse_value', 'selectedWarehouse', 'inventory', 'purchaseOrder', 'totalPendingStock', 'totalProcessStock', 'totalDoneStock')
         );
     }
 
@@ -74,6 +74,7 @@ class DashboardController extends Controller
 
     public function outbound()
     {
+
         return view('pages.dashboards.outbound');
     }
 

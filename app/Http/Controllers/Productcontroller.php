@@ -43,7 +43,8 @@ class Productcontroller extends Controller
 
     public function adjuststock()
     {
-        $products = Products::all();
+        $brand_id = session('brand_id');
+        $products = Products::where('id_brand', $brand_id)->get();
         $warehouses = Warehouses::all();
         return view('adjuststock', compact('products', 'warehouses'));
     }

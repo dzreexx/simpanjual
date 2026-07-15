@@ -15,4 +15,11 @@ class Inventory extends Model
         'id_warehouse',
         'stock',
     ];
+
+    public function warehouse()
+{
+    return $this->belongsTo(Warehouses::class, 'id_warehouse');
+}
+
+
 }

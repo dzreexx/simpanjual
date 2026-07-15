@@ -1,5 +1,12 @@
 @extends('layouts.app')
 
+@php
+    $today = \Carbon\Carbon::now();
+
+    $firstMonth = $today->copy()->startOfMonth();
+    $lastMonth = $today->copy()->endOfMonth();
+@endphp
+
 @section('title', 'Inbound')
 @section('content')
     <div class="p-4 space-y-1 bg-white">
@@ -63,8 +70,8 @@
             <h1>{{ $selectedWarehouse->warehouse_name }}</h1>
         @endif
 
-        @if ($inventory)
-            <h1>{{ $inventory->stock }}</h1>
+        @if ($inventory->isNotEmpty())
+            <h1>{{ $inventory->first()->stock }}</h1>
         @endif
 
         @if ($purchaseOrder)
@@ -408,7 +415,7 @@
                     <span
                         class="badge badge-lg badge-warning w-full sticky top-0 bg-white z-10"
                     >
-                        PO Accepted at Warehouse
+                        Overall Item Qty - Details
                     </span>
                     @if ($purchaseOrder->count() > 0)
                         <table class="table table-xs">
@@ -471,46 +478,53 @@
                     <span
                         class="badge badge-lg badge-warning w-full sticky top-0 bg-white z-10"
                     >
-                        PO Accepted at Warehouse
+                        Stock After Inbound
                     </span>
 
-                    @if ($purchaseOrder->count() > 0)
+                    @if ($purchaseOrder->count() > 0 || $inventory->isNotEmpty())
                         <div
                             class="stats stats-vertical lg:stats-horizontal shadow w-full h-full flex justify-center items-center"
                         >
                             <div
                                 class="stat flex flex-col justify-center items-center"
                             >
-                                <div class="stat-title">Previous Stock</div>
-                                @if ($previousStock->count() > 0)
-                                    <div class="stat-value">
-                                        {{ $previousStock->sum('stock') }}
-                                    </div>
-                                @else
-                                    <div class="stat-value">0</div>
-                                @endif
-
-                                <div class="stat-desc">Jan 1st - Feb 1st</div>
-                            </div>
-
-                            <div
-                                class="stat flex flex-col justify-center items-center"
-                            >
                                 <div class="stat-title">Stock Done</div>
                                 <div class="stat-value">
-                                    <td>{{ $po->stock }}</td>
+                                    <td>
+                                        {{ $totalDoneStock }}
+                                    </td>
                                 </div>
-                                <div class="stat-desc">↗︎ 400 (22%)</div>
+                                <div class="stat-desc">
+                                    {{ $firstMonth->format('j F') }} -
+                                    {{ $lastMonth->format('j F') }}
+                                </div>
                             </div>
 
                             <div
                                 class="stat flex flex-col justify-center items-center"
                             >
-                                <div class="stat-title">Current Stock</div>
-                                <div class="stat-value">
-                                    {{ $previousStock->sum('stock') + $po->stock }}
+                                <div class="stat-title">
+                                    Current Stock Warehouse
                                 </div>
-                                <div class="stat-desc">↘︎ 90 (14%)</div>
+                                <div class="stat-value">
+                                    {{ $totalDoneStock + $inventory->sum('stock') }}
+                                </div>
+                                <div class="stat-desc">
+                                    @php
+                                        // Menghitung total stok yang ada di inventory dan stok done
+                                        $currentStock = $totalDoneStock + $inventory->sum('stock');
+
+                                        // Menghitung persentase berdasarkan rumus yang benar
+                                        $percentage = 0;
+                                        if ($currentStock > 0) {
+                                            $percentage = ($totalDoneStock / $currentStock) * 100;
+                                        }
+                                    @endphp
+
+                                    ↗ {{ $totalDoneStock }}
+                                    ({{ number_format($percentage, 2) }}%)
+                                </div>
+                                <!-- <div class="stat-desc">↘︎ 90 (14%)</div> -->
                             </div>
                         </div>
                     @else
