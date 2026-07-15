@@ -3,8 +3,11 @@
 @section('title', 'Sales Order')
 
 @section('content')
-    <div class="bg-base-100 p-6 h-full font-sans">
-        {{-- Header --}}
+    <div
+        class="bg-base-100 p-6 h-full font-sans"
+        x-data="{ openSearch: false, search: '{{ request('search') }}' }"
+    >
+        {{-- Header & Buttons --}}
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-2xl font-bold text-sky-600 flex items-center gap-2">
                 Sales Order
@@ -30,97 +33,79 @@
             </h1>
             <div class="flex gap-3">
                 <button
-                    class="btn btn-outline btn-info btn-sm text-sky-600 hover:text-white"
+                    onclick="export_so_modal.showModal()"
+                    class="btn btn-outline btn-info btn-sm text-sky-600 rounded-lg"
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="w-4 h-4 mr-1"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
-                        />
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                     </svg>
                     Export Data
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="w-3 h-3 ml-1"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                        />
-                    </svg>
                 </button>
-                <button class="btn btn-outline btn-sm text-gray-500">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="w-4 h-4 mr-1"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
-                        />
+                <button
+                    onclick="import_so_modal.showModal()"
+                    class="btn btn-outline btn-sm text-gray-500"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                     </svg>
                     Import Data
                 </button>
-                <button
-                    class="btn btn-sm bg-gray-100 text-gray-400 border-none hover:bg-gray-200"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="w-4 h-4 mr-1"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M12 4.5v15m7.5-7.5h-15"
-                        />
-                    </svg>
+                <button class="btn btn-sm bg-gray-100 text-gray-400 border-none">
                     Create New
                 </button>
             </div>
         </div>
 
-        {{-- Status Tabs --}}
+        {{-- Flash Alerts --}}
+        @if (session('import_success'))
+            <div class="alert alert-success mb-4 flex items-start gap-3 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                <div>
+                    <p class="font-semibold">{{ session('import_success') }}</p>
+                    @if (session('import_errors'))
+                        <ul class="text-sm mt-1 list-disc list-inside text-yellow-700">
+                            @foreach (session('import_errors') as $err)
+                                <li>{{ $err }}</li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </div>
+            </div>
+        @endif
+        @if ($errors->any())
+            <div class="alert alert-error mb-4 rounded-lg">
+                <ul class="list-disc list-inside text-sm">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        @if (session('status_success'))
+            <div class="alert alert-info mb-4 flex items-center gap-3 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                <span class="font-semibold">{{ session('status_success') }}</span>
+            </div>
+        @endif
+
+        {{-- Tabs Status --}}
         <div class="mb-6 overflow-x-auto">
             <div
                 class="flex space-x-6 text-sm text-gray-500 border-b border-gray-200 pb-2 min-w-max"
             >
-                <a
-                    href="#"
-                    class="text-sky-600 font-semibold border-b-2 border-sky-600 pb-2 px-1"
-                >
-                    All
-                </a>
-                <a href="#" class="hover:text-gray-700 px-1">Unpaid</a>
-                <a href="#" class="hover:text-gray-700 px-1">New Orders</a>
-                <a href="#" class="hover:text-gray-700 px-1">Hold</a>
-                <a href="#" class="hover:text-gray-700 px-1">Ready to Ship</a>
-                <a href="#" class="hover:text-gray-700 px-1">Shipping</a>
-                <a href="#" class="hover:text-gray-700 px-1">Completed</a>
-                <a href="#" class="hover:text-gray-700 px-1">Cancelled</a>
-                <a href="#" class="hover:text-gray-700 px-1">Missing Data</a>
-                <a href="#" class="hover:text-gray-700 px-1">Oversell</a>
+                @php
+                    $tabs = ['all' => 'All', 'unpaid' => 'Unpaid', 'new order' => 'New Orders', 'hold' => 'Hold', 'ready to ship' => 'Ready to Ship', 'shipping' => 'Shipping', 'completed' => 'Completed'];
+                    $currentStatus = $status ?? 'all';
+                @endphp
+
+                @foreach ($tabs as $slug => $label)
+                    <a
+                        href="{{ route('salesorder', array_merge(['status' => $slug === 'all' ? null : $slug], request()->except('status'))) }}"
+                        class="px-1 pb-2 {{ $currentStatus == $slug ? 'text-sky-600 font-semibold border-b-2 border-sky-600' : 'hover:text-gray-700' }}"
+                    >
+                        {{ $label }}
+                    </a>
+                @endforeach
             </div>
         </div>
 
@@ -128,80 +113,44 @@
         <div
             class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6"
         >
-            <div class="flex items-center gap-3">
-                <div class="dropdown">
-                    <label
-                        tabindex="0"
-                        class="btn btn-sm btn-outline btn-ghost border-gray-300 font-normal normal-case"
+            {{-- Per Page Form --}}
+            <form
+                action="{{ url()->current() }}"
+                method="GET"
+                id="perPageForm"
+                class="flex items-center gap-3"
+            >
+                <select
+                    class="select appearance-none border-2 border-gray-200 rounded-lg"
+                    name="per_page"
+                    onchange="this.form.submit()"
+                >
+                    <option
+                        value="5"
+                        {{ request('per_page') == 5 ? 'selected' : '' }}
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            class="w-4 h-4 mr-2"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
-                            />
-                        </svg>
-                        10 row
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            class="w-3 h-3 ml-2"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                            />
-                        </svg>
-                    </label>
-                </div>
-                <div class="dropdown">
-                    <label
-                        tabindex="0"
-                        class="btn btn-sm btn-outline btn-ghost border-gray-300 font-normal normal-case"
+                        5 Rows
+                    </option>
+                    <option
+                        value="10"
+                        {{ request('per_page', 10) == 10 ? 'selected' : '' }}
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            class="w-4 h-4 mr-2"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
-                            />
-                        </svg>
-                        Medium View
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="1.5"
-                            stroke="currentColor"
-                            class="w-3 h-3 ml-2"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M19.5 8.25l-7.5 7.5-7.5-7.5"
-                            />
-                        </svg>
-                    </label>
-                </div>
-                <button
+                        10 Rows
+                    </option>
+                    <option
+                        value="25"
+                        {{ request('per_page') == 25 ? 'selected' : '' }}
+                    >
+                        25 Rows
+                    </option>
+                    <option
+                        value="50"
+                        {{ request('per_page') == 50 ? 'selected' : '' }}
+                    >
+                        50 Rows
+                    </option>
+                </select>
+                <!-- <button
                     class="btn btn-sm btn-circle btn-outline border-gray-300 text-sky-500"
                 >
                     <svg
@@ -218,318 +167,675 @@
                             d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
                         />
                     </svg>
-                </button>
-            </div>
+                </button> -->
+            </form>
+
             <div class="flex items-center gap-3 w-full md:w-auto">
+                {{-- Search Bar --}}
                 <div class="relative w-full md:w-80">
-                    <input
-                        type="text"
-                        placeholder="Search your orders here (max: 5)"
-                        class="input input-sm input-bordered w-full pr-10 rounded-full"
-                    />
-                    <div
-                        class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none"
+                    <form
+                        action="{{ url()->current() }}"
+                        method="GET"
+                        id="searchForm"
                     >
-                        <svg
-                            aria-hidden="true"
-                            class="w-4 h-4 text-gray-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
+                        {{-- Bawa filter tanggal/channel saat search --}}
+                        @foreach (request()->except(['search', 'search_by']) as $k => $v)
+                            <input
+                                type="hidden"
+                                name="{{ $k }}"
+                                value="{{ $v }}"
+                            />
+                        @endforeach
+
+                        <div class="relative flex items-center">
+                            <input
+                                type="text"
+                                name="search"
+                                x-model="search"
+                                @input="openSearch = search.length > 0"
+                                @focus="if(search.length > 0) openSearch = true"
+                                @click.away="openSearch = false"
+                                placeholder="Search orders..."
+                                class="input input-sm input-bordered w-full pr-16 rounded-full focus:outline-sky-500"
+                                autocomplete="off"
+                            />
+                            <input
+                                type="hidden"
+                                name="search_by"
+                                id="searchBy"
+                            />
+                            <div
+                                class="absolute inset-y-0 right-0 flex items-center pr-2 gap-1"
+                            >
+                                <template x-if="search.length > 0">
+                                    <button
+                                        type="button"
+                                        @click="window.location.href='{{ url()->current() }}'"
+                                        class="p-1 text-gray-400 hover:text-red-500"
+                                    >
+                                        ✕
+                                    </button>
+                                </template>
+                                <svg
+                                    class="w-4 h-4 text-gray-400"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                        stroke-width="2"
+                                    />
+                                </svg>
+                            </div>
+                        </div>
+
+                        {{-- Suggestions --}}
+                        <div
+                            x-show="openSearch"
+                            class="absolute z-50 w-full mt-2 bg-white border rounded-xl shadow-xl"
                         >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                            ></path>
-                        </svg>
-                    </div>
+                            <button
+                                type="submit"
+                                @click="document.getElementById('searchBy').value = 'so_number'"
+                                class="w-full px-4 py-2 text-sm text-left hover:bg-sky-50"
+                            >
+                                SO Number:
+                                <span
+                                    x-text="search"
+                                    class="font-bold"
+                                ></span>
+                            </button>
+                            <button
+                                type="submit"
+                                @click="document.getElementById('searchBy').value = 'customer'"
+                                class="w-full px-4 py-2 text-sm text-left hover:bg-sky-50"
+                            >
+                                Customer:
+                                <span
+                                    x-text="search"
+                                    class="font-bold"
+                                ></span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
+
+                {{-- Trigger Modal Filter --}}
                 <button
+                    onclick="filter_modal.showModal()"
                     class="btn btn-sm btn-outline border-gray-300 font-normal normal-case"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
+                        class="w-4 h-4 mr-2"
                         fill="none"
                         viewBox="0 0 24 24"
-                        stroke-width="1.5"
                         stroke="currentColor"
-                        class="w-4 h-4 mr-2"
                     >
                         <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
+                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.5a1 1 0 01-.293.707L13 14.414V19a1 1 0 01-.447.894l-4 2.667A1 1 0 017 21.667V14.414L3.293 7.207A1 1 0 013 6.5V4z"
                         />
                     </svg>
                     All Filter
+                    @if (request()->anyFilled(['start_date', 'end_date', 'channel']))
+                        <span class="badge badge-info badge-xs ml-1">!</span>
+                    @endif
                 </button>
             </div>
         </div>
 
         {{-- Table --}}
-        <div
-            class="border border-base-200 rounded-lg bg-white min-h-[500px] flex flex-col relative"
-        >
-            <div class="overflow-x-auto">
-                <table class="table w-full">
-                    <thead>
-                        <tr class="border-b border-gray-100">
-                            <th class="bg-white">
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        class="checkbox checkbox-sm rounded-sm"
-                                    />
-                                </label>
-                            </th>
-                            <th
-                                class="bg-white text-gray-500 font-medium capitalize"
-                            >
-                                <div
-                                    class="flex items-center gap-1 cursor-pointer hover:text-gray-700"
+        <div class="border rounded-lg bg-white overflow-hidden overflow-x-auto">
+            <table class="table w-full text-sm">
+                <thead>
+                    <tr class="bg-gray-50 text-gray-600 text-xs uppercase tracking-wide">
+                        <th class="whitespace-nowrap">SO Number</th>
+                        <th class="whitespace-nowrap">Customer</th>
+                        <th class="whitespace-nowrap">Product</th>
+                        <th class="whitespace-nowrap">Warehouse</th>
+                        <th class="whitespace-nowrap text-right">Qty</th>
+                        <th class="whitespace-nowrap text-right">Grand Total</th>
+                        <th class="whitespace-nowrap">Status</th>
+                        <th class="whitespace-nowrap">Delivery Due</th>
+                        <th class="whitespace-nowrap">Completed Date</th>
+                        <th class="whitespace-nowrap">Created Date</th>
+                        <th class="whitespace-nowrap text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($salesOrders as $so)
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="font-medium whitespace-nowrap">
+                                <a href="{{ route('salesorder.detail', $so->so_number) }}" class="text-sky-600 hover:text-sky-800 hover:underline">
+                                    {{ $so->so_number }}
+                                </a>
+                            </td>
+                            <td class="whitespace-nowrap">{{ $so->so_customer ?? '-' }}</td>
+                            <td class="whitespace-nowrap">{{ $so->product->product_name ?? '-' }}</td>
+                            <td class="whitespace-nowrap text-xs text-gray-500">
+                                {{ $so->warehouse->warehouse_name ?? '-' }}
+                            </td>
+                            <td class="text-right font-medium">{{ number_format($so->total_amount) }}</td>
+                            <td class="text-right whitespace-nowrap">
+                                Rp {{ number_format($so->grand_total, 0, ',', '.') }}
+                            </td>
+                            <td class="whitespace-nowrap">
+                                @php
+                                    $statusColors = [
+                                        'unpaid'       => 'badge-warning',
+                                        'new order'    => 'badge-info',
+                                        'hold'         => 'badge-ghost',
+                                        'ready to ship'=> 'badge-primary',
+                                        'shipping'     => 'badge-accent',
+                                        'completed'    => 'badge-success',
+                                        'cancelled'    => 'badge-error',
+                                        'missing data' => 'badge-ghost',
+                                        'oversell'     => 'badge-error',
+                                    ];
+                                    $badgeClass = $statusColors[strtolower($so->status ?? '')] ?? 'badge-ghost';
+                                @endphp
+                                <span class="badge {{ $badgeClass }} badge-sm capitalize whitespace-nowrap">
+                                    {{ $so->status ?? '-' }}
+                                </span>
+                            </td>
+                            <td class="text-xs text-gray-500 whitespace-nowrap">
+                                {{ $so->delivery_due_date ? \Carbon\Carbon::parse($so->delivery_due_date)->format('d/m/Y') : '-' }}
+                            </td>
+                            <td class="text-xs text-gray-500 whitespace-nowrap">
+                                {{ $so->completed_date ? \Carbon\Carbon::parse($so->completed_date)->format('d/m/Y H:i') : '-' }}
+                            </td>
+                            <td class="text-xs text-gray-500 whitespace-nowrap">
+                                {{ $so->created_at->format('d/m/Y H:i') }}
+                            </td>
+                            <td class="text-center">
+                                <button
+                                    onclick="document.getElementById('so_detail_modal_{{ $loop->index }}').showModal()"
+                                    class="btn btn-xs btn-outline btn-info gap-1 rounded-lg"
                                 >
-                                    SO Number
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="1.5"
-                                        stroke="currentColor"
-                                        class="w-3 h-3"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
-                                        />
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
-                                </div>
-                            </th>
-                            <th
-                                class="bg-white text-gray-500 font-medium capitalize"
-                            >
-                                Customer
-                            </th>
-                            <th
-                                class="bg-white text-gray-500 font-medium capitalize"
-                            >
-                                Status
-                            </th>
-                            <th
-                                class="bg-white text-gray-500 font-medium capitalize"
-                            >
-                                Sales Channel
-                            </th>
-                            <th
-                                class="bg-white text-gray-500 font-medium capitalize"
-                            >
-                                <div
-                                    class="flex items-center gap-1 cursor-pointer hover:text-gray-700"
-                                >
-                                    Total Qty.
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="1.5"
-                                        stroke="currentColor"
-                                        class="w-3 h-3"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
-                                        />
-                                    </svg>
-                                </div>
-                            </th>
-                            <th
-                                class="bg-white text-gray-500 font-medium capitalize"
-                            >
-                                Grand Total
-                            </th>
-                            <th
-                                class="bg-white text-gray-500 font-medium capitalize"
-                            >
-                                <div
-                                    class="flex items-center gap-1 cursor-pointer hover:text-gray-700"
-                                >
-                                    Delivery Due Date
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="1.5"
-                                        stroke="currentColor"
-                                        class="w-3 h-3"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
-                                        />
-                                    </svg>
-                                </div>
-                            </th>
-                            <th
-                                class="bg-white text-gray-500 font-medium capitalize"
-                            >
-                                Source Location
-                            </th>
-                            <th
-                                class="bg-white text-gray-500 font-medium capitalize"
-                            >
-                                <div
-                                    class="flex items-center gap-1 cursor-pointer hover:text-gray-700"
-                                >
-                                    Created Date
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="1.5"
-                                        stroke="currentColor"
-                                        class="w-3 h-3"
-                                    >
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"
-                                        />
-                                    </svg>
-                                </div>
-                            </th>
+                                    Detail
+                                </button>
+                            </td>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <!-- No Data Row -->
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Empty State -->
-            <div
-                class="flex-1 flex flex-col justify-center items-center text-center p-10 text-gray-500"
-            >
-                <div class="mb-4 text-gray-300">
-                    {{-- Placeholder Icon for the 'Ghost' --}}
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="0.5"
-                        stroke="currentColor"
-                        class="w-32 h-32 mx-auto"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z"
-                        />
-                    </svg>
-                </div>
-                <h3 class="text-lg font-medium text-gray-600">
-                    Whoa, looks like this place is as empty as a ghost town!
-                </h3>
-                <p class="text-sm mt-1">
-                    Time to break the silence - hit
-                    <span class="text-sky-500 font-medium">"Create New"</span>
-                    and make your first sales orders!
-                </p>
-            </div>
+                    @endforeach
+                </tbody>
+            </table>
+            @if ($salesOrders->isEmpty())
+                <div class="p-10 text-center text-gray-400">No data found.</div>
+            @endif
         </div>
 
-        {{-- Footer/Pagination --}}
+        {{-- Pagination --}}
+        <!-- <div class="mt-4">
+            {{ $salesOrders->links() }}
+        </div> -->
         <div
-            class="flex justify-between items-center mt-4 text-xs text-gray-500"
+            class="flex justify-between items-center mt-4 pb-4 text-xs text-gray-500"
         >
-            <div>Showing 0-0 of 0 data.</div>
-            <div class="btn-group">
-                <button
-                    class="btn btn-sm btn-ghost hover:bg-transparent text-gray-400"
-                    disabled
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="w-4 h-4"
+            {{-- Info Data --}}
+            <div>
+                Showing {{ $salesOrders->firstItem() ?? 0 }} to
+                {{ $salesOrders->lastItem() ?? 0 }} of
+                {{ $salesOrders->total() }} entries
+            </div>
+
+            {{-- Navigasi Tombol --}}
+            <div class="flex items-center gap-2">
+                {{-- Tombol Previous --}}
+                @if ($salesOrders->onFirstPage())
+                    <button class="btn btn-sm btn-ghost text-gray-400" disabled>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            class="w-4 h-4"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M15.75 19.5L8.25 12l7.5-7.5"
+                            />
+                        </svg>
+                    </button>
+                @else
+                    <a
+                        href="{{ $salesOrders->appends(request()->query())->previousPageUrl() }}"
+                        class="btn btn-sm btn-ghost text-sky-500 hover:bg-sky-50"
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5"
-                        />
-                    </svg>
-                </button>
-                <button
-                    class="btn btn-sm btn-ghost hover:bg-transparent text-gray-400"
-                    disabled
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="w-4 h-4"
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            class="w-4 h-4"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M15.75 19.5L8.25 12l7.5-7.5"
+                            />
+                        </svg>
+                    </a>
+                @endif
+
+                {{-- Nomor Halaman (Hanya tampil halaman saat ini) --}}
+                @foreach ($salesOrders->getUrlRange(1, $salesOrders->lastPage()) as $page => $url)
+                    @if ($page == $salesOrders->currentPage())
+                        {{-- Tombol Halaman Aktif --}}
+                        <button
+                            class="btn btn-sm bg-sky-500 text-white border-none hover:bg-sky-600"
+                        >
+                            {{ $page }}
+                        </button>
+                    @else
+                        {{-- Tombol Halaman Lain --}}
+                        <a
+                            href="{{ $url . '&' . http_build_query(request()->except('page')) }}"
+                            class="btn btn-sm btn-outline border-gray-200 text-gray-500 hover:bg-gray-50"
+                        >
+                            {{ $page }}
+                        </a>
+                    @endif
+                @endforeach
+
+                {{-- Tombol Next --}}
+
+                @if ($salesOrders->hasMorePages())
+                    <a
+                        href="{{ $salesOrders->appends(request()->query())->nextPageUrl() }}"
+                        class="btn btn-sm btn-ghost text-sky-500 hover:bg-sky-50"
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M15.75 19.5L8.25 12l7.5-7.5"
-                        />
-                    </svg>
-                </button>
-                <button
-                    class="btn btn-sm btn-outline border-sky-200 text-sky-500 bg-sky-50 hover:bg-sky-100 hover:border-sky-300"
-                >
-                    1
-                </button>
-                <button
-                    class="btn btn-sm btn-ghost hover:bg-transparent text-gray-400"
-                    disabled
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="w-4 h-4"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                        />
-                    </svg>
-                </button>
-                <button
-                    class="btn btn-sm btn-ghost hover:bg-transparent text-gray-400"
-                    disabled
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="w-4 h-4"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5"
-                        />
-                    </svg>
-                </button>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            class="w-4 h-4"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                            />
+                        </svg>
+                    </a>
+                @else
+                    <button class="btn btn-sm btn-ghost text-gray-400" disabled>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="1.5"
+                            stroke="currentColor"
+                            class="w-4 h-4"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                            />
+                        </svg>
+                    </button>
+                @endif
             </div>
         </div>
     </div>
+
+    {{-- MODAL FILTER (Diletakkan di luar div utama agar aman) --}}
+    <dialog id="filter_modal" class="modal">
+        <div class="modal-box w-11/12 max-w-2xl bg-white p-0 overflow-visible">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 class="font-bold text-2xl text-gray-700">Filter</h3>
+                <form method="dialog">
+                    <button class="btn btn-sm btn-circle btn-ghost">✕</button>
+                </form>
+            </div>
+
+            {{-- FORM FILTER --}}
+            <form
+                action="{{ route('salesorder', ['status' => $status ?? 'all']) }}"
+                method="GET"
+            >
+                {{-- Tetap bawa search jika sedang aktif --}}
+                <input
+                    type="hidden"
+                    name="search"
+                    value="{{ request('search') }}"
+                />
+                <input
+                    type="hidden"
+                    name="per_page"
+                    value="{{ request('per_page') }}"
+                />
+
+                <div class="p-6 space-y-6">
+                    {{-- Date Range --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-control">
+                            <label class="label font-bold text-gray-700">
+                                Created Date From
+                            </label>
+                            <input
+                                type="date"
+                                name="start_date"
+                                class="input input-bordered w-full"
+                                value="{{ request('start_date') }}"
+                            />
+                        </div>
+                        <div class="form-control">
+                            <label class="label font-bold text-gray-700">
+                                Created Date To
+                            </label>
+                            <input
+                                type="date"
+                                name="end_date"
+                                class="input input-bordered w-full"
+                                value="{{ request('end_date') }}"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 border-t flex justify-end items-center gap-4">
+                    <a
+                        href="{{ route('salesorder', ['status' => $status ?? 'all']) }}"
+                        class="text-sky-500 font-semibold"
+                    >
+                        Reset Filter
+                    </a>
+                    <button
+                        type="submit"
+                        class="btn bg-sky-500 hover:bg-sky-600 text-white border-none rounded-full px-10"
+                    >
+                        Apply Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    {{-- MODAL EXPORT SALES ORDER --}}
+    <dialog id="export_so_modal" class="modal">
+        <div class="modal-box w-11/12 max-w-md bg-white p-0">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 class="font-bold text-xl text-gray-700 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    </svg>
+                    Export Sales Order
+                </h3>
+                <form method="dialog">
+                    <button class="btn btn-sm btn-circle btn-ghost">✕</button>
+                </form>
+            </div>
+            <form action="{{ route('salesorder.export') }}" method="GET" id="exportSOForm">
+                <div class="p-6 space-y-5">
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-3 text-sm text-green-800">
+                        <p class="font-semibold mb-0.5">Data yang akan diexport:</p>
+                        <p class="text-xs text-green-700">Semua Sales Order sesuai rentang tanggal yang dipilih. Jika tanggal kosong, semua data akan diexport.</p>
+                    </div>
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="form-control">
+                            <label class="label pb-1">
+                                <span class="label-text font-semibold text-gray-700">Tanggal Mulai (Start From)</span>
+                            </label>
+                            <input type="date" name="start_date" class="input input-bordered w-full focus:outline-sky-400" value="{{ request('start_date') }}" />
+                        </div>
+                        <div class="form-control">
+                            <label class="label pb-1">
+                                <span class="label-text font-semibold text-gray-700">Tanggal Akhir (End)</span>
+                            </label>
+                            <input type="date" name="end_date" class="input input-bordered w-full focus:outline-sky-400" value="{{ request('end_date') }}" />
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6 border-t flex justify-end items-center gap-3">
+                    <form method="dialog">
+                        <button type="submit" class="btn btn-sm btn-ghost text-gray-500">Batal</button>
+                    </form>
+                    <button type="submit" form="exportSOForm" class="btn btn-sm bg-green-600 hover:bg-green-700 text-white border-none px-6 gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                        </svg>
+                        Export Excel
+                    </button>
+                </div>
+            </form>
+        </div>
+        <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
+
+    {{-- MODAL IMPORT SALES ORDER --}}
+    <dialog id="import_so_modal" class="modal">
+        <div class="modal-box w-11/12 max-w-lg bg-white p-0">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 class="font-bold text-xl text-gray-700 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-sky-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    Import Sales Order
+                </h3>
+                <form method="dialog">
+                    <button class="btn btn-sm btn-circle btn-ghost">✕</button>
+                </form>
+            </div>
+            <div class="p-6 space-y-5">
+                {{-- Download Template --}}
+                <div class="bg-sky-50 border border-sky-200 rounded-xl p-4 flex items-center justify-between gap-4">
+                    <div>
+                        <p class="font-semibold text-sky-800 text-sm">Download Template Excel</p>
+                        <p class="text-xs text-sky-600 mt-0.5">Isi template ini lalu upload di bawah.</p>
+                    </div>
+                    <a href="{{ route('salesorder.template') }}" class="btn btn-sm bg-sky-500 hover:bg-sky-600 text-white border-none gap-2 shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        </svg>
+                        Download Template
+                    </a>
+                </div>
+
+                {{-- Format Info --}}
+                <div class="text-xs text-gray-500 space-y-1 bg-gray-50 rounded-lg p-3">
+                    <p class="font-semibold text-gray-600 mb-1">Format kolom template:</p>
+                    <ul class="list-disc list-inside space-y-0.5">
+                        <li><span class="font-medium text-gray-700">Customer Name*</span> — Nama customer</li>
+                        <li><span class="font-medium text-gray-700">Product Name*</span> — Nama produk (sesuai nama di sistem)</li>
+                        <li><span class="font-medium text-gray-700">Warehouse Name*</span> — Nama gudang</li>
+                        <li><span class="font-medium text-gray-700">Qty*</span> — Jumlah (angka positif)</li>
+                        <li><span class="font-medium text-gray-700">Status</span> — unpaid / new order / completed / dll</li>
+                    </ul>
+                    <p class="text-yellow-600 font-medium mt-2">* Kolom wajib diisi. Import dimulai dari baris ke-3. SO Number & Grand Total digenerate otomatis.</p>
+                </div>
+
+                {{-- Upload Form --}}
+                <form action="{{ route('salesorder.import') }}" method="POST" enctype="multipart/form-data" id="importSOForm">
+                    @csrf
+                    <div
+                        class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-sky-400 transition-colors cursor-pointer"
+                        onclick="document.getElementById('so_import_file').click()"
+                        id="so_dropzone"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 mx-auto text-gray-300 mb-2" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12l-3-3m0 0l-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                        <p class="text-sm text-gray-500" id="so_dropzone_label">Klik untuk pilih file atau drag & drop</p>
+                        <p class="text-xs text-gray-400 mt-1">Format: .xlsx, .xls, .csv — Maks. 5MB</p>
+                        <input type="file" name="import_file" id="so_import_file" accept=".xlsx,.xls,.csv" class="hidden" onchange="updateSODropzone(this)" />
+                    </div>
+                    <div class="mt-4 flex justify-end gap-3">
+                        <form method="dialog">
+                            <button type="submit" class="btn btn-sm btn-ghost text-gray-500">Batal</button>
+                        </form>
+                        <button type="submit" form="importSOForm" class="btn btn-sm bg-sky-500 hover:bg-sky-600 text-white border-none px-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                            </svg>
+                            Import Sekarang
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop"><button>close</button></form>
+    </dialog>
+
+    <script>
+        function updateSODropzone(input) {
+            const label = document.getElementById('so_dropzone_label');
+            if (input.files && input.files[0]) {
+                label.textContent = '📄 ' + input.files[0].name;
+                label.classList.add('text-sky-600', 'font-medium');
+            }
+        }
+        const soDz = document.getElementById('so_dropzone');
+        if (soDz) {
+            soDz.addEventListener('dragover', e => { e.preventDefault(); soDz.classList.add('border-sky-500','bg-sky-50'); });
+            soDz.addEventListener('dragleave', () => { soDz.classList.remove('border-sky-500','bg-sky-50'); });
+            soDz.addEventListener('drop', e => {
+                e.preventDefault();
+                soDz.classList.remove('border-sky-500','bg-sky-50');
+                const input = document.getElementById('so_import_file');
+                input.files = e.dataTransfer.files;
+                updateSODropzone(input);
+            });
+        }
+    </script>
+
+    {{-- MODAL DETAIL & UPDATE STATUS SO --}}
+    @foreach ($salesOrders as $so)
+        <dialog id="so_detail_modal_{{ $loop->index }}" class="modal">
+            <div class="modal-box w-11/12 max-w-lg bg-white p-0">
+                {{-- Header --}}
+                <div class="p-6 border-b flex justify-between items-center">
+                    <h3 class="font-bold text-xl text-gray-700 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-sky-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                        Detail Sales Order
+                    </h3>
+                    <form method="dialog">
+                        <button class="btn btn-sm btn-circle btn-ghost">✕</button>
+                    </form>
+                </div>
+
+                {{-- Body --}}
+                <div class="p-6 space-y-4">
+                    {{-- Info Grid --}}
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                            <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">SO Number</p>
+                            <p class="font-semibold text-gray-800 mt-0.5">{{ $so->so_number }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Customer</p>
+                            <p class="font-semibold text-gray-800 mt-0.5">{{ $so->so_customer ?? '-' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Product</p>
+                            <p class="font-semibold text-gray-800 mt-0.5">{{ $so->product->product_name ?? '-' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Warehouse</p>
+                            <p class="font-semibold text-gray-800 mt-0.5">{{ $so->warehouse->warehouse_name ?? '-' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Quantity</p>
+                            <p class="font-semibold text-gray-800 mt-0.5">{{ number_format($so->total_amount) }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Grand Total</p>
+                            <p class="font-semibold text-gray-800 mt-0.5">Rp {{ number_format($so->grand_total, 0, ',', '.') }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Created Date</p>
+                            <p class="font-semibold text-gray-800 mt-0.5">{{ $so->created_at->format('d/m/Y H:i') }}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-400 text-xs font-medium uppercase tracking-wider">Current Status</p>
+                            @php
+                                $statusColors = [
+                                    'unpaid'       => 'badge-warning',
+                                    'new order'    => 'badge-info',
+                                    'hold'         => 'badge-ghost',
+                                    'ready to ship'=> 'badge-primary',
+                                    'shipping'     => 'badge-accent',
+                                    'completed'    => 'badge-success',
+                                ];
+                                $badgeClass = $statusColors[strtolower($so->status ?? '')] ?? 'badge-ghost';
+                            @endphp
+                            <span class="badge {{ $badgeClass }} badge-sm capitalize mt-1">{{ $so->status ?? '-' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="divider my-2"></div>
+
+                    {{-- Update Status Form --}}
+                    @php
+                        $isLocked = in_array(strtolower($so->status ?? 'unpaid'), ['completed', 'cancelled']);
+                    @endphp
+                    <form
+                        action="{{ route('salesorder.updateStatus', $so->so_number) }}"
+                        method="POST"
+                    >
+                        @csrf
+                        @method('PATCH')
+                        <div class="form-control">
+                            <label class="label pb-1">
+                                <span class="label-text font-semibold text-gray-700">
+                                    @if ($isLocked)
+                                        Status Dokumen (Terkunci)
+                                    @else
+                                        Update Status Dokumen
+                                    @endif
+                                </span>
+                            </label>
+                            <select name="status" class="select select-bordered w-full focus:outline-sky-400" {{ $isLocked ? 'disabled' : '' }}>
+                                @php
+                                    $soStatuses = [
+                                        'unpaid' => 'Unpaid',
+                                        'new order' => 'New Orders',
+                                        'hold' => 'Hold',
+                                        'ready to ship' => 'Ready to Ship',
+                                        'shipping' => 'Shipping',
+                                        'completed' => 'Completed',
+                                        'cancelled' => 'Cancelled',
+                                    ];
+                                @endphp
+                                @foreach ($soStatuses as $val => $label)
+                                    <option value="{{ $val }}" {{ strtolower($so->status ?? 'unpaid') == $val ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="mt-5 flex justify-end gap-3">
+                            <button type="button" onclick="this.closest('dialog').close()" class="btn btn-sm btn-ghost text-gray-500">Batal</button>
+                            @if (!$isLocked)
+                                <button type="submit" class="btn btn-sm bg-sky-500 hover:bg-sky-600 text-white border-none px-6 gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                    </svg>
+                                    Update Status
+                                </button>
+                            @endif
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <form method="dialog" class="modal-backdrop"><button>close</button></form>
+        </dialog>
+    @endforeach
+
 @endsection

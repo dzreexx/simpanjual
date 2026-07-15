@@ -12,13 +12,32 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sales_order', function (Blueprint $table) {
-            $table->bigIncrements('id_brand');
-            $table->string('so_number');
+            $table->string('so_number')->primary()->unique();
             $table->string('so_customer');
-            $table->string('status');
+            $table->enum('status', [
+            'unpaid', 
+            'new order', 
+            'hold', 
+            'ready to ship', 
+            'shipping', 
+            'completed', 
+            'cancelled', 
+            'missing data', 
+            'oversell'
+            ])->default('unpaid');
             $table->integer('total_amount');
             $table->integer('grand_total');
-            $table->date('delivery_due_date');
+            $table->date('delivery_due_date')->nullable();
+            $table->date('completed_date')->nullable();
+            $table->foreignId('id_brand')
+                ->constrained('brands', 'id_brand')
+                ->onDelete('cascade');
+            $table->foreignId('id_product')
+                ->constrained('products', 'id_product')
+                ->onDelete('cascade');
+            $table->foreignId('source_location')
+                ->constrained('warehouses', 'id_warehouse')
+                ->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -28,6 +47,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('sales_order');
     }
 };
